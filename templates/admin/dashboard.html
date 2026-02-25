@@ -1,0 +1,156 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 class="fw-bold"><i class="fas fa-shield-alt me-3 text-primary"></i>Admin Analytics Dashboard</h2>
+        <p class="text-dim">Enterprise-level monitoring of clinical trends and system performance.</p>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-primary">
+            <div class="card-body">
+                <h6 class="text-dim">Total Patients</h6>
+                <h2 class="mb-0">{{ stats['total_patients'] }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-info">
+            <div class="card-body">
+                <h6 class="text-dim">Diagnoses Performed</h6>
+                <h2 class="mb-0">{{ stats['total_diagnoses'] }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-warning">
+            <div class="card-body">
+                <h6 class="text-dim">Pending Appointments</h6>
+                <h2 class="mb-0">{{ stats['pending_appointments'] }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-success">
+            <div class="card-body">
+                <h6 class="text-dim">System Status</h6>
+                <h2 class="mb-0 text-success">Online</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Disease Distribution Bar Chart -->
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header">Top 10 Diagnosed Diseases (Clinical Trend)</div>
+            <div class="card-body">
+                <canvas id="diseaseChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Pie Chart -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">Risk Level Distribution</div>
+            <div class="card-body">
+                <canvas id="riskChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Diagnosis Trend Line Chart -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">Last 7 Days Diagnosis Activity</div>
+            <div class="card-body">
+                <canvas id="trendChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Theme colors
+    const colors = {
+        primary: '#00d4ff',
+        success: '#2ecc71',
+        warning: '#ff9f43',
+        danger: '#ff4d4d',
+        grey: '#2a3548'
+    };
+
+    // Disease Bar Chart
+    new Chart(document.getElementById('diseaseChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ stats['disease_labels']| tojson }},
+        datasets: [{
+            label: 'Diagnoses',
+            data: {{ stats['disease_values']| tojson }},
+        backgroundColor: colors.primary
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { grid: { color: colors.grey }, ticks: { color: '#94a3b8' } },
+            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+        }
+    }
+    });
+
+    // Risk Pie Chart
+    new Chart(document.getElementById('riskChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ stats['risk_labels']| tojson }},
+        datasets: [{
+            data: {{ stats['risk_values']| tojson }},
+        backgroundColor: [colors.success, colors.warning, colors.danger],
+        borderColor: '#141b26'
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { color: '#e1e7ef' } } }
+    }
+    });
+
+    // Trend Line Chart
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: {{ stats['trend_labels']| tojson }},
+        datasets: [{
+            label: 'Total Diagnoses',
+            data: {{ stats['trend_values']| tojson }},
+        borderColor: colors.primary,
+        backgroundColor: 'rgba(0, 212, 255, 0.1)',
+        fill: true,
+        tension: 0.4
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { grid: { color: colors.grey }, ticks: { color: '#94a3b8', stepSize: 1 } },
+            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+        }
+    }
+    });
+</script>
+{% endblock %}

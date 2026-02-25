@@ -1,0 +1,59 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 class="fw-bold"><i class="fas fa-user-md me-3 text-info"></i>Doctor Dashboard</h2>
+        <p class="text-dim">Manage your upcoming patient consultations.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">Patient Appointment Requests</div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Patient Name</th>
+                                <th>Date</th>
+                                <th>Time Slot</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appt in appointments %}
+                            <tr>
+                                <td>{{ appt.patient.username }}</td>
+                                <td>{{ appt.date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ appt.time_slot }}</td>
+                                <td>
+                                    <span
+                                        class="badge {{ 'bg-warning' if appt.status == 'Pending' else 'bg-success' }}">
+                                        {{ appt.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('appointments.update_status', appointment_id=appt.id, status='Confirmed') }}"
+                                            class="btn btn-sm btn-outline-success">Confirm</a>
+                                        <a href="{{ url_for('appointments.update_status', appointment_id=appt.id, status='Cancelled') }}"
+                                            class="btn btn-sm btn-outline-danger">Cancel</a>
+                                        <a href="{{ url_for('appointments.update_status', appointment_id=appt.id, status='Completed') }}"
+                                            class="btn btn-sm btn-outline-primary">Complete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

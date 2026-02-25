@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card bg-dark border-secondary">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">User Profile</h4>
+            </div>
+            <div class="card-body text-light">
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-secondary d-inline-block p-4 mb-2">
+                        <i class="fas fa-user-md fa-4x"></i>
+                    </div>
+                    <h3>{{ current_user.username }}</h3>
+                    <span class="badge bg-info">{{ current_user.role|title }} Account</span>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 text-muted">Email Address</div>
+                    <div class="col-sm-8 mb-3">{{ current_user.email }}</div>
+
+                    <div class="col-sm-4 text-muted">Account ID</div>
+                    <div class="col-sm-8 mb-3">#US-{{ current_user.id }}001</div>
+
+                    <div class="col-sm-4 text-muted">Member Since</div>
+                    <div class="col-sm-8 mb-3">Today</div>
+                </div>
+
+                <hr class="border-secondary">
+
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger">Sign Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

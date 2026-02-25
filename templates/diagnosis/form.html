@@ -1,0 +1,88 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="fw-bold mb-4"><i class="fas fa-stethoscope me-3 text-info"></i>AI Symptom Checker</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <p class="mb-4 text-dim">Select all the symptoms you are currently experiencing and rate their severity
+                    from 1 (Mild) to 5 (Severe).</p>
+
+                <form action="" method="post" id="diagnosisForm">
+                    <div class="row overflow-auto" style="max-height: 500px;">
+                        {% for symptom in symptoms %}
+                        <div class="col-md-6 mb-3 p-3 border border-dark rounded">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check">
+                                    <input class="form-check-input symptom-check" type="checkbox"
+                                        name="symptom_{{ symptom }}" id="check_{{ symptom }}"
+                                        onchange="toggleSeverity('{{ symptom }}')">
+                                    <label class="form-check-label" for="check_{{ symptom }}">
+                                        {{ symptom.replace('_', ' ').title() }}
+                                    </label>
+                                </div>
+                                <div id="severity_container_{{ symptom }}" style="display: none;">
+                                    <select name="severity_{{ symptom }}" class="form-select form-select-sm">
+                                        <option value="1">1 - Mild</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5 - Severe</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-medical py-3 fs-5" id="submitBtn">
+                            <i class="fas fa-brain me-2"></i> Analyze My Symptoms
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-info">
+            <div class="card-header bg-info bg-opacity-10">How it works</div>
+            <div class="card-body">
+                <ol class="small text-dim">
+                    <li class="mb-2">Select your symptoms from the list provided.</li>
+                    <li class="mb-2">Set the severity level for each symptom.</li>
+                    <li class="mb-2">Our AI compares your profile against thousands of medical records.</li>
+                    <li class="mb-2">Receive immediate diagnosis probabilities and risk assessment.</li>
+                    <li>Download your professional medical report.</li>
+                </ol>
+                <div class="alert alert-info py-2 small mt-3">
+                    <i class="fas fa-info-circle me-2"></i> This tool uses a Random Forest Classifier with 99% accuracy
+                    on synthetic datasets.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSeverity(symptom) {
+        const check = document.getElementById('check_' + symptom);
+        const container = document.getElementById('severity_container_' + symptom);
+        container.style.display = check.checked ? 'block' : 'none';
+    }
+
+    document.getElementById('diagnosisForm').onsubmit = function () {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Analyzing... Please Wait';
+    };
+</script>
+{% endblock %}
+

@@ -1,0 +1,141 @@
+﻿{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h2 class="fw-bold">Welcome back, {{ current_user.username }}</h2>
+        <p class="text-dim">Overview of your health diagnostic records and appointments.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Quick Actions -->
+    <div class="col-md-4">
+        <div class="card bg-info bg-opacity-10 border-info">
+            <div class="card-body text-center p-4">
+                <i class="fas fa-microscope fa-3x mb-3 text-info"></i>
+                <h4>New Diagnosis</h4>
+                <p class="small text-dim">Start a new symptom analysis using our advanced AI.</p>
+                <a href="{{ url_for('diagnosis.diagnose') }}" class="btn btn-info w-100">Start Analysis</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-success bg-opacity-10 border-success">
+            <div class="card-body text-center p-4">
+                <i class="fas fa-calendar-alt fa-3x mb-3 text-success"></i>
+                <h4>Book Visit</h4>
+                <p class="small text-dim">Schedule a consultation with our medical specialists.</p>
+                <a href="{{ url_for('appointments.book') }}" class="btn btn-success w-100">Book Now</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-warning bg-opacity-10 border-warning">
+            <div class="card-body text-center p-4">
+                <i class="fas fa-file-medical fa-3x mb-3 text-warning"></i>
+                <h4>Medical Reports</h4>
+                <p class="small text-dim">Download and view your historical medical reports.</p>
+                <button class="btn btn-warning w-100" onclick="alert('Scroll down to view history')">View
+                    History</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <!-- Recent Diagnoses -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Recent Symptom Checks</span>
+                <a href="{{ url_for('diagnosis.diagnose') }}" class="btn btn-sm btn-outline-info">New Check</a>
+            </div>
+            <div class="card-body">
+                {% if diagnoses %}
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Risk Score</th>
+                                <th>Primary Prediction</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in diagnoses %}
+                            <tr>
+                                <td>{{ d.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <span
+                                        class="badge {{ 'bg-danger' if d.risk_score > 50 else ('bg-warning' if d.risk_score > 25 else 'bg-success') }}">
+                                        {{ d.risk_score }}
+                                    </span>
+                                </td>
+                                <td>{{ d.get_predictions()[0]['disease'] if d.get_predictions() else 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ url_for('diagnosis.view_diagnosis', diagnosis_id=d.id) }}"
+                                        class="btn btn-sm btn-outline-info me-2">View</a>
+                                    <a href="{{ url_for('diagnosis.download_report', diagnosis_id=d.id) }}"
+                                        class="btn btn-sm btn-outline-secondary">
+                                        <i class="fas fa-download"></i> PDF
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center text-dim py-4">No recent diagnoses found. Start your first checkup!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">Upcoming Appointments</div>
+            <div class="card-body">
+                {% if appointments %}
+                {% for appt in appointments %}
+                <div
+                    class="d-flex align-items-center mb-3 p-2 bg-dark rounded border-start border-3 {{ 'border-info' if appt.status == 'Pending' else 'border-success' }}">
+                    <div class="flex-shrink-0 me-3">
+                        <i class="fas fa-stethoscope fa-2x text-dim"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0">Dr. {{ appt.doctor.name }}</h6>
+                        <small class="text-dim">{{ appt.date.strftime('%b %d, %Y') }} at {{ appt.time_slot }}</small>
+                    </div>
+                    <div class="text-end">
+                        {% set badge_class = 'bg-secondary' %}
+                        {% if appt.status == 'Pending' %}
+                            {% set badge_class = 'bg-info' %}
+                        {% elif appt.status == 'Confirmed' %}
+                            {% set badge_class = 'bg-success' %}
+                        {% elif appt.status == 'Cancelled' %}
+                            {% set badge_class = 'bg-danger' %}
+                        {% elif appt.status == 'Completed' %}
+                            {% set badge_class = 'bg-primary' %}
+                        {% endif %}
+                        <span class="badge {{ badge_class }}">{{ appt.status }}</span>
+                        {% if appt.status in ['Pending','Confirmed'] %}
+                        <a href="{{ url_for('appointments.update_status', appointment_id=appt.id, status='Cancelled') }}" class="btn btn-sm btn-link text-danger">Cancel</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-center text-dim py-4">No upcoming appointments.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
